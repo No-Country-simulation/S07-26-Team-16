@@ -711,7 +711,7 @@ function SectionFinancial({
         </div>
         <div className="grid grid-cols-3 gap-3">
           {[3, 5, 10].map((yrs) => (
-            <div key={yrs} className="rounded-lg border border-white/10 bg-[#00281b] p-3 text-center">
+            <div key={yrs} className="rounded-lg border border-white/10 bg-[#00281b] p-1 lg:p-3 text-center">
               <p className="text-lg font-semibold tabular-nums text-[#d4a94e]">{fmtUsd(positiveSavings * yrs)}</p>
               <p className="mt-1 text-[11px] text-white/50">{yrs} años</p>
             </div>

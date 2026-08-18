@@ -128,7 +128,10 @@ function FunnelLayer({
   const width = Math.max(pct, 34)
 
   return (
-    <div className="flex w-full flex-col items-center" style={{ width: `${width}%` }}>
+    <div 
+      className="flex w-full flex-col items-center sm:w-[var(--layer-width)] transition-all duration-300"
+      style={{ "--layer-width": `${width}%` } as React.CSSProperties}
+    >
       <div
         className="flex w-full items-center gap-3 rounded-xl p-3 sm:p-4 transition-all"
         style={{
