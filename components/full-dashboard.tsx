@@ -104,7 +104,7 @@ function Panel({
 }) {
   return (
     <div className={`relative rounded-2xl p-px transition-all duration-300 ${PANEL_BORDER} ${className}`}>
-      <div className={`relative flex h-full flex-col rounded-2xl bg-[#003a27]/90 p-6 lg:p-8 ${contentClassName}`}>
+      <div className={`relative flex h-full flex-col rounded-2xl bg-[#003a27]/90 p-4 lg:p-8 ${contentClassName}`}>
         {children}
       </div>
     </div>
@@ -790,7 +790,7 @@ function SectionRadar({
   return (
     <div className="flex flex-col gap-5">
       {/* Selector de comparación */}
-      <Panel contentClassName="flex-col gap-4 items-center sm:justify-between p-6 lg:p-6">
+      <Panel contentClassName="flex-col gap-4 items-center sm:justify-between p-4 lg:p-6">
         <p className="text-md text-white">
           Comparar mi escenario actual{" "}
           <span className="font-semibold text-[#d4a94e]">

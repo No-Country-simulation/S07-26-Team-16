@@ -199,13 +199,13 @@ export function ResultPanel({ result, onUnlock }: ResultPanelProps) {
 
   if (!result) {
     return (
-      <div className="relative flex h-full w-full min-h-0 flex-col items-end justify-between overflow-hidden">
+<div className="relative flex h-full w-full min-h-0 flex-col items-center lg:items-end justify-between overflow-hidden gap-6 lg:gap-0">
         <div className="absolute inset-0 z-0 pointer-events-none" suppressHydrationWarning>
           {/*<Model />*/}
         </div>
 
         {/* Bloque de marca */}
-        <div className="relative z-10 mt-14 flex w-full max-w-[400px] flex-col items-center text-center">
+        <div className="relative z-10 flex w-full max-w-[400px] flex-col items-center rounded-2xl bg-black/40 p-4 text-center backdrop-blur-md lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
           <h1 className="font-serif text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
             <span style={{ color: "#0d4a34" }}>Physa</span>
             <span style={{ color: "#c9a44c" }}>Flow</span>
@@ -214,9 +214,9 @@ export function ResultPanel({ result, onUnlock }: ResultPanelProps) {
             className="mt-1.5 text-[8px] font-medium uppercase tracking-[0.2em] sm:text-[10px]"
             style={{ color: "#c9a44c" }}
           >
-            Nature-Inspired Frontier AI Networks
+            Nature-Inspired Frontier AI Networks 
           </p>
-          <div className="hidden md:flex items-center gap-4 p-4">
+          <div className="flex md:flex items-center gap-4 p-4">
             <a
               href="https://dev.physaflow.com/login"
               className="group relative overflow-hidden rounded-lg px-5 py-2.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 bg-[linear-gradient(135deg,#a27e2d,#d4a94e)] shadow-[0_4px_20px_rgba(162,126,45,0.35)]"
@@ -228,8 +228,8 @@ export function ResultPanel({ result, onUnlock }: ResultPanelProps) {
         </div>
 
         {/* Contenedor de texto */}
-        <div className="relative z-10 flex w-full max-w-[400px] flex-col items-center justify-center p-4 mb-14 text-center">
-          <h3 className="text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">
+        <div className="relative z-10 flex w-full max-w-[400px] flex-col items-center justify-center rounded-2xl bg-black/40 p-4 text-center backdrop-blur-md lg:bg-transparent lg:backdrop-blur-none">
+          <h3 className="text-3xl font-extrabold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">
             Your stranded
             <br />
             <span className="animate-shimmer">capacity results</span>
@@ -285,7 +285,7 @@ export function ResultPanel({ result, onUnlock }: ResultPanelProps) {
           background: "linear-gradient(135deg, rgba(212,169,78,0.6), rgba(162,126,45,0.2), rgba(26,107,79,0.3))",
         }}
       >
-        <div className="relative flex h-full min-h-0 w-full flex-1 flex-col justify-between gap-2 overflow-y-auto rounded-2xl sm:gap-3 p-6 md:p-6 bg-[#003a27]/90">
+        <div className="relative flex h-full min-h-0 w-full flex-1 flex-col justify-between gap-2 overflow-y-auto rounded-2xl sm:gap-3 p-4 md:p-6 bg-[#003a27]/90">
           <div
             className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
             style={{ background: "radial-gradient(circle at 20% 20%, rgba(212,169,78,0.07) 0%, transparent 60%)" }}

@@ -174,52 +174,52 @@ export function CapacityCalculator({
   return (
     <div
       onClick={() => collapsed && onCollapseChange(false)}
-      className={`group relative h-full w-full overflow-hidden rounded-2xl p-px transition-all duration-500 ease-in-out bg-[linear-gradient(135deg,rgba(212,169,78,0.6),rgba(162,126,45,0.2),rgba(26,107,79,0.3))] ${
+      className={`group relative w-full overflow-hidden rounded-2xl p-px transition-all duration-500 ease-in-out bg-[linear-gradient(135deg,rgba(212,169,78,0.6),rgba(162,126,45,0.2),rgba(26,107,79,0.3))] ${
         collapsed
-          ? "lg:w-[100px] cursor-pointer hover:border-[#d4a94e]"
-          : "hover:-translate-y-1"
+          ? "h-auto lg:h-full lg:w-[100px] cursor-pointer hover:border-[#d4a94e]"
+          : "h-auto lg:h-full hover:-translate-y-1"
       }`}
     >
-      <div className="relative flex h-full w-full flex-col rounded-2xl p-6 md:p-6 bg-[#003a27]/90 transition-all duration-500">
+      <div className="relative flex h-full w-full flex-col rounded-2xl p-4 sm:p-6 bg-[#003a27]/90 transition-all duration-500">
         {/* Glow radial en Hover */}
         <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100 bg-[radial-gradient(circle_at_20%_20%,rgba(212,169,78,0.07)_0%,transparent_60%)]" />
 
         {/* MODO COLAPSADO */}
         {collapsed ? (
-          <div className="flex h-full flex-col items-center justify-between py-2 transition-opacity duration-300">
+          <div className="flex flex-row items-center justify-between gap-4 py-1 transition-opacity duration-300 lg:h-full lg:flex-col lg:justify-between lg:gap-0 lg:py-2">
             {/* Ícono Principal */}
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#d4a94e]/35 bg-[linear-gradient(135deg,rgba(212,169,78,0.2),rgba(162,126,45,0.1))] transition-all duration-300 group-hover:scale-110">
-              <Zap className="h-6 w-6 text-[#d4a94e]" aria-hidden="true" />
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#d4a94e]/35 bg-[linear-gradient(135deg,rgba(212,169,78,0.2),rgba(162,126,45,0.1))] transition-all duration-300 group-hover:scale-110 lg:h-12 lg:w-12">
+              <Zap className="h-5 w-5 text-[#d4a94e] lg:h-6 lg:w-6" aria-hidden="true" />
             </div>
 
-            {/* Texto Vertical */}
-            <div className="flex flex-1 items-center justify-center my-6">
-              <h2 className="rotate-180 text-base font-bold text-white tracking-wider uppercase [writing-mode:vertical-lr] text-center">
+            {/* Texto: horizontal en mobile, vertical en desktop */}
+            <div className="flex flex-1 items-center justify-start lg:my-6 lg:justify-center">
+              <h2 className="text-left text-sm font-bold uppercase tracking-wider text-white lg:rotate-180 lg:text-center lg:text-base lg:[writing-mode:vertical-lr]">
                 Capacity Waste Calculator
               </h2>
             </div>
 
-            {/* Indicador de expansión al hacer hover */}
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-[#d4a94e] group-hover:bg-[#d4a94e]/20 transition-colors">
-              <ChevronRight className="h-4 w-4" />
+            {/* Indicador de expansión al hacer hover/tap */}
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/5 text-[#d4a94e] transition-colors group-hover:bg-[#d4a94e]/20">
+              <ChevronRight className="h-4 w-4 rotate-90 lg:rotate-0" />
             </div>
           </div>
         ) : (
           /* MODO EXPANDIDO (FORMULARIO) */
           <div className="relative flex h-full w-full flex-col transition-opacity duration-300">
             {/* Header del Calculator */}
-            <div className="mb-6 flex items-center gap-5 shrink-0">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#d4a94e]/35 bg-[linear-gradient(135deg,rgba(212,169,78,0.2),rgba(162,126,45,0.1))] transition-all duration-300 group-hover:scale-110">
-                <Zap className="h-6 w-6 text-[#d4a94e]" aria-hidden="true" />
+            <div className="mb-5 flex items-center gap-3 shrink-0 sm:mb-6 sm:gap-5">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#d4a94e]/35 bg-[linear-gradient(135deg,rgba(212,169,78,0.2),rgba(162,126,45,0.1))] transition-all duration-300 group-hover:scale-110 sm:h-12 sm:w-12">
+                <Zap className="h-5 w-5 text-[#d4a94e] sm:h-6 sm:w-6" aria-hidden="true" />
               </div>
               <div>
                 <span className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-[#a27e2d]">
                   Capacity Engine
                 </span>
-                <h2 className="text-lg font-bold text-white leading-tight">
+                <h2 className="text-base font-bold leading-tight text-white sm:text-lg">
                   Capacity Waste Calculator
                 </h2>
-                <p className="text-sm text-white/50">
+                <p className="text-xs text-white/50 sm:text-sm">
                   Model your facility in three inputs
                 </p>
               </div>
@@ -275,16 +275,16 @@ export function CapacityCalculator({
               </div>
 
               {/* Fieldset: Cooling type */}
-              <fieldset className="flex flex-1 flex-col gap-3 min-h-0">
+              <fieldset className="flex flex-col gap-2 lg:flex-1 lg:min-h-0">
                 <legend className="mb-1 text-sm font-medium text-white/80">Cooling Type</legend>
-                <div className="flex flex-1 flex-col justify-between gap-2 overflow-y-auto">
+                <div className="flex flex-col gap-2 lg:flex-1 lg:justify-between lg:overflow-y-auto">
                   {COOLING_OPTIONS.map((option) => {
                     const Icon = option.icon
                     const active = coolingType === option.value
                     return (
                       <label
                         key={option.value}
-                        className={`flex flex-1 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-all ${
+                        className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-all lg:flex-1 ${
                           active
                             ? "border-[#d4a94e] bg-[rgba(212,169,78,0.1)] ring-1 ring-[#d4a94e]/30"
                             : "border-white/10 bg-[#00281b] hover:border-[#d4a94e]/40"
