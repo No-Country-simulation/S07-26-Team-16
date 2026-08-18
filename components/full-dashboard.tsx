@@ -71,24 +71,24 @@ const COOLING_LABEL: Record<CoolingType, string> = {
 const EFFICIENCY_ORDER: CoolingType[] = ["immersion", "liquid", "hybrid", "air"]
 
 const ELECTRICITY_REGIONS = [
-  { region: "PPA solar", price: 60 },
-  { region: "PPA eólica", price: 75 },
+  { region: "Solar PPA", price: 60 },
+  { region: "Wind PPA", price: 75 },
   { region: "Texas", price: 80 },
   { region: "Virginia", price: 90 },
-  { region: "Promedio EE.UU.", price: 100 },
-  { region: "Promedio UE", price: 199 },
-  { region: "Alemania", price: 244 },
-  { region: "Irlanda", price: 275 },
+  { region: "US Average", price: 100 },
+  { region: "EU Average", price: 199 },
+  { region: "Germany", price: 244 },
+  { region: "Ireland", price: 275 },
 ]
 
 function radarAxes(r: CalculatorResult) {
   const opt = COOLING_OPTIONS.find((c) => c.value === r.coolingType)!
   const densAvg = (opt.densityLow + opt.densityHigh) / 2
   return [
-    { axis: "Uso eficiente", value: clamp(100 - r.strandedPercent) },
+    { axis: "Efficient usage", value: clamp(100 - r.strandedPercent) },
     { axis: "PUE", value: clamp((100 * (2.0 - r.pue)) / 1.0) },
-    { axis: "Pérdida anual", value: clamp(100 * (1 - r.annualLossAvg / 20_000_000)) },
-    { axis: "Densidad", value: clamp(100 * (densAvg / 200)) },
+    { axis: "Annual loss", value: clamp(100 * (1 - r.annualLossAvg / 20_000_000)) },
+    { axis: "Density", value: clamp(100 * (densAvg / 200)) },
   ]
 }
 
@@ -212,10 +212,10 @@ function SectionBasic({
 
   const severity =
     strandedPercent >= 60
-      ? "Estás perdiendo más de la mitad de tu capacidad instalada."
+      ? "You're losing more than half of your installed capacity."
       : strandedPercent >= 35
-        ? "Hay una porción considerable de tu capacidad sin aprovechar."
-        : "Tu operación está relativamente eficiente, aunque queda margen."
+        ? "A considerable portion of your capacity is going unused."
+        : "Your operation is relatively efficient, though there's still room for improvement."
 
   const highDensity = option.value === "liquid" || option.value === "immersion"
 
@@ -228,8 +228,6 @@ function SectionBasic({
     return { x: 160 + 120 * Math.cos(rad), y: 150 - 120 * Math.sin(rad) }
   }
   const end = toXY(endAngle)
-  // El barrido va de 0° a 180° como máximo (medio círculo), nunca más:
-  // el arco correcto SIEMPRE es el "menor", así que largeArc es siempre 0.
   const largeArc = 0
 
   // PUE reference bar scale 1.0 - 2.0 (clamped para evitar overflow si pueHigh > 2.0)
@@ -239,21 +237,21 @@ function SectionBasic({
   return (
     <Panel className="h-full" contentClassName="gap-4">
       <div>
-        <Eyebrow>Tu resultado</Eyebrow>
+        <Eyebrow>Your result</Eyebrow>
         <p className="mt-2 text-lg font-semibold leading-snug text-white text-balance">{severity}</p>
         <p className="mt-2 text-sm leading-relaxed text-white/60 text-pretty">
-          Con un facility de <b className="font-medium text-white">{fmtMW(facilitySize)}</b> operando al{" "}
-          <b className="font-medium text-white">{utilization}%</b> sobre{" "}
-          <b className="font-medium text-white">{option.label} Cooling</b>, hay{" "}
-          <b className="font-medium text-white">{fmtMW(strandedCapacity)}</b> que pagás en energía y
-          refrigeración pero que hoy no producen ningún cómputo — pérdida real todos los meses, no solo un número de
-          eficiencia.
+          With a facility of <b className="font-medium text-white">{fmtMW(facilitySize)}</b> operating at{" "}
+          <b className="font-medium text-white">{utilization}%</b> using{" "}
+          <b className="font-medium text-white">{option.label} Cooling</b>, there's{" "}
+          <b className="font-medium text-white">{fmtMW(strandedCapacity)}</b> that you're paying for in energy and
+          cooling but that isn't producing any compute today — a real loss every month, not just an efficiency
+          number.
         </p>
       </div>
 
       {/* Gauge */}
       <Tile>
-        <svg viewBox="0 0 320 180" width="100%" role="img" aria-label={`${strandedPercent.toFixed(0)}% de capacidad stranded`}>
+        <svg viewBox="0 0 320 180" width="100%" role="img" aria-label={`${strandedPercent.toFixed(0)}% stranded capacity`}>
           <path d="M 40 150 A 120 120 0 0 1 280 150" fill="none" stroke={TRACK} strokeWidth="22" strokeLinecap="round" />
           {frac > 0 && (
             <path
@@ -279,7 +277,7 @@ function SectionBasic({
         </div>
         <div className="mt-2 flex items-center justify-between text-xs">
           <span className="font-medium" style={{ color: GREEN_ACCENT }}>
-            {fmtMW(deliveredLoad)} usado
+            {fmtMW(deliveredLoad)} used
           </span>
           <span className="font-medium" style={{ color: GOLD }}>
             {fmtMW(strandedCapacity)} stranded
@@ -290,8 +288,8 @@ function SectionBasic({
       {/* PUE reference */}
       <Tile>
         <div className="flex items-center justify-between">
-          <Eyebrow>PUE de referencia — {option.label} Cooling</Eyebrow>
-          <span className="text-[10px] font-medium tracking-wide text-white/35">ESCALA 1.00 – 2.00</span>
+          <Eyebrow>Reference PUE — {option.label} Cooling</Eyebrow>
+          <span className="text-[10px] font-medium tracking-wide text-white/35">SCALE 1.00 – 2.00</span>
         </div>
 
         <div className="relative mt-6">
@@ -367,7 +365,7 @@ function SectionBasic({
         </div>
 
         <p className="mt-3 text-[11px] leading-relaxed text-white/40">
-          Rango publicado (ASHRAE, Vertiv) — no es una medición exacta de tu facility.
+          Published range (ASHRAE, Vertiv) — not an exact measurement of your facility.
         </p>
       </Tile>
 
@@ -375,14 +373,14 @@ function SectionBasic({
       <p className="text-sm leading-relaxed text-white/60">
         {highDensity ? (
           <>
-            Tu tecnología soporta alta densidad (aprox. {option.densityLow}–{option.densityHigh} kW/rack), lo esperable
-            para cargas de IA, que hoy van de 50 a 120+ kW por rack.
+            Your technology supports high density (approx. {option.densityLow}–{option.densityHigh} kW/rack), which is
+            expected for AI workloads that today range from 50 to 120+ kW per rack.
           </>
         ) : (
           <>
-            Las cargas tradicionales rondan 5–15 kW por rack y tu tecnología soporta {option.densityLow}–
-            {option.densityHigh} kW/rack. Si corrés IA de alta densidad, vas a exigir el cooling muy por encima de ese
-            rango.
+            Traditional workloads run around 5–15 kW per rack and your technology supports {option.densityLow}–
+            {option.densityHigh} kW/rack. If you're running high-density AI, you'll push the cooling system far
+            beyond that range.
           </>
         )}
       </p>
@@ -435,11 +433,11 @@ function SectionBreakdown({ result }: { result: CalculatorResult }) {
   return (
     <Panel className="h-full" contentClassName="gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-base font-semibold text-white">Capacity Flow — dónde se pierde tu capacidad</h3>
+        <h3 className="text-base font-semibold text-white">Capacity Flow — where your capacity is lost</h3>
         <div className="flex gap-3 text-[11px] text-white/50">
-          <Legend color={GREEN_ACCENT} label="Entregado" />
-          <Legend color={GOLD} label="Perdido acá" />
-          <Legend color="rgba(255,255,255,0.25)" label="Perdido antes" />
+          <Legend color={GREEN_ACCENT} label="Delivered" />
+          <Legend color={GOLD} label="Lost here" />
+          <Legend color="rgba(255,255,255,0.25)" label="Lost before" />
         </div>
       </div>
 
@@ -472,15 +470,15 @@ function SectionBreakdown({ result }: { result: CalculatorResult }) {
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-white/50">
                   <span className="font-medium" style={{ color: GOLD }}>
-                    −{fmtMW(layer.lostHere)} ({goldPct.toFixed(1)}% del total)
+                    −{fmtMW(layer.lostHere)} ({goldPct.toFixed(1)}% of total)
                   </span>
                   <span aria-hidden="true">·</span>
                   <span>
-                    {beforePct.toFixed(1)}% → {greenPct.toFixed(1)}% del nameplate
+                    {beforePct.toFixed(1)}% → {greenPct.toFixed(1)}% of nameplate
                   </span>
                   <span aria-hidden="true">·</span>
                   <span>
-                    Esta capa: 100% → <b className="font-medium text-white">{(layer.localPass * 100).toFixed(1)}%</b>
+                    This layer: 100% → <b className="font-medium text-white">{(layer.localPass * 100).toFixed(1)}%</b>
                   </span>
                 </div>
               </Tile>
@@ -503,7 +501,7 @@ function SectionBreakdown({ result }: { result: CalculatorResult }) {
           className="flex w-full items-center justify-between gap-2 text-left text-xs font-medium uppercase tracking-wide text-white/50 transition hover:text-white"
           aria-expanded={showCalc}
         >
-          <span>Cómo se calcula &quot;Esta capa: 100% → X%&quot;</span>
+          <span>How "This layer: 100% → X%" is calculated</span>
           <ChevronDown className={`h-4 w-4 transition-transform ${showCalc ? "rotate-180" : ""}`} aria-hidden="true" />
         </button>
         {showCalc && (
@@ -511,17 +509,17 @@ function SectionBreakdown({ result }: { result: CalculatorResult }) {
             <table className="w-full border-collapse text-left text-[11.5px]">
               <thead>
                 <tr className="bg-white/5 text-white/50">
-                  <th className="p-2 font-medium">Capa</th>
-                  <th className="p-2 font-medium">Qué mide</th>
-                  <th className="p-2 font-medium">Parámetro del modelo</th>
-                  <th className="p-2 font-medium">Tu valor</th>
+                  <th className="p-2 font-medium">Layer</th>
+                  <th className="p-2 font-medium">What it measures</th>
+                  <th className="p-2 font-medium">Model parameter</th>
+                  <th className="p-2 font-medium">Your value</th>
                 </tr>
               </thead>
               <tbody className="text-white/80">
                 <tr className="border-t border-white/10">
                   <td className="p-2 font-medium text-white">Facility</td>
                   <td className="p-2 text-white/50">
-                    Cuánta energía llega al IT tras el overhead de cooling
+                    How much power reaches IT after cooling overhead
                   </td>
                   <td className="p-2 tabular-nums">1 / PUE</td>
                   <td className="p-2 tabular-nums">
@@ -531,16 +529,16 @@ function SectionBreakdown({ result }: { result: CalculatorResult }) {
                 <tr className="border-t border-white/10">
                   <td className="p-2 font-medium text-white">IT</td>
                   <td className="p-2 text-white/50">
-                    Capacidad disponible tras reservar el margen de redundancia
+                    Available capacity after reserving redundancy margin
                   </td>
-                  <td className="p-2 tabular-nums">1 − margen</td>
-                  <td className="p-2 tabular-nums">Margen {(REDUNDANCY_MARGIN * 100).toFixed(0)}% → 85%</td>
+                  <td className="p-2 tabular-nums">1 − margin</td>
+                  <td className="p-2 tabular-nums">Margin {(REDUNDANCY_MARGIN * 100).toFixed(0)}% → 85%</td>
                 </tr>
                 <tr className="border-t border-white/10">
                   <td className="p-2 font-medium text-white">Workload</td>
-                  <td className="p-2 text-white/50">Cuánto de la capacidad disponible se usa realmente</td>
-                  <td className="p-2 tabular-nums">Utilización ingresada</td>
-                  <td className="p-2 tabular-nums">Tu input: {utilization}%</td>
+                  <td className="p-2 text-white/50">How much of the available capacity is actually used</td>
+                  <td className="p-2 tabular-nums">Entered utilization</td>
+                  <td className="p-2 tabular-nums">Your input: {utilization}%</td>
                 </tr>
               </tbody>
             </table>
@@ -569,14 +567,14 @@ function IndustryContext() {
     <Tile>
       <div className="mb-2 flex items-center gap-2">
         <Factory className="h-4 w-4 text-[#d4a94e]" aria-hidden="true" />
-        <p className="text-sm font-medium text-white">Contexto de industria — dato de referencia</p>
+        <p className="text-sm font-medium text-white">Industry context — reference data</p>
       </div>
       <p className="mb-3 text-xs leading-relaxed text-white/50">
-        En un data center tradicional el equipo de IT concentra la mayor parte del consumo. En uno de IA, la
-        infraestructura crece tanto que casi empata con el IT.
+        In a traditional data center, IT equipment accounts for most of the consumption. In an AI data center,
+        infrastructure grows so much that it nearly matches IT.
       </p>
       <div className="flex flex-wrap items-center gap-4">
-        <svg viewBox="0 0 200 200" width="150" height="150" className="shrink-0" role="img" aria-label="Donut concéntrico: modelo tradicional (interior, verdes) y data center de IA (exterior, dorados)">
+        <svg viewBox="0 0 200 200" width="150" height="150" className="shrink-0" role="img" aria-label="Concentric donut: traditional model (inner, greens) and AI data center (outer, golds)">
           {/* inner — traditional: IT 70 / Cooling 20 / Electrical 7 / Misc 3 */}
           <circle cx="100" cy="100" r="45" fill="none" stroke={GREEN_ACCENT} strokeWidth="20" strokeDasharray="197.9 84.8" transform="rotate(-90 100 100)" />
           <circle cx="100" cy="100" r="45" fill="none" stroke={GREEN_MID} strokeWidth="20" strokeDasharray="56.5 226.2" strokeDashoffset="-197.9" transform="rotate(-90 100 100)" />
@@ -590,9 +588,9 @@ function IndustryContext() {
         <table className="min-w-[260px] flex-1 border-collapse text-[11.5px]">
           <thead>
             <tr className="text-white/50">
-              <th className="p-1.5 text-left font-medium">Data center de IA</th>
+              <th className="p-1.5 text-left font-medium">AI Data Center</th>
               <th className="p-1.5 text-right font-medium">%</th>
-              <th className="border-l border-white/10 p-1.5 pl-3 text-left font-medium">Tradicional</th>
+              <th className="border-l border-white/10 p-1.5 pl-3 text-left font-medium">Traditional</th>
               <th className="p-1.5 text-right font-medium">%</th>
             </tr>
           </thead>
@@ -609,7 +607,7 @@ function IndustryContext() {
             </tr>
             <tr>
               <td className="p-1.5">
-                <Legend color={GOLD} label="Infraestructura" />
+                <Legend color={GOLD} label="Infrastructure" />
               </td>
               <td className="p-1.5 text-right tabular-nums">55%</td>
               <td className="border-l border-white/10 p-1.5 pl-3">
@@ -637,8 +635,8 @@ function IndustryContext() {
         </table>
       </div>
       <p className="mt-3 text-[11px] leading-relaxed text-white/40">
-        Fuente: Uptime Institute / Schneider Electric White Paper 110. La capa Workload se mide con ITWC (IT Work
-        Capacity), una métrica real de The Green Grid — no es un supuesto propio de este modelo.
+        Source: Uptime Institute / Schneider Electric White Paper 110. The Workload layer is measured using ITWC (IT Work
+        Capacity), a real metric from The Green Grid — not a proprietary assumption of this model.
       </p>
     </Tile>
   )
@@ -666,25 +664,25 @@ function SectionFinancial({
     <Panel className="h-full" contentClassName="gap-5">
       <div className="flex items-center gap-2">
         <TrendingDown className="h-4 w-4 text-[#d4a94e]" aria-hidden="true" />
-        <h3 className="text-base font-semibold text-white">Impacto financiero</h3>
+        <h3 className="text-base font-semibold text-white">Financial impact</h3>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <Tile>
-          <p className="text-xs text-white/50">Costo total del facility</p>
+          <p className="text-xs text-white/50">Total facility cost</p>
           <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{fmtUsd(totalFacilityCostAvg)}</p>
-          <p className="mt-1 text-[11px] text-white/40">por año, a precio promedio</p>
+          <p className="mt-1 text-[11px] text-white/40">per year, at average price</p>
         </Tile>
         <div className="rounded-xl p-4" style={{ background: GOLD, color: FOREST }}>
-          <p className="text-xs" style={{ color: "rgba(0,58,39,0.7)" }}>De eso, se pierde</p>
+          <p className="text-xs" style={{ color: "rgba(0,58,39,0.7)" }}>Of that, lost</p>
           <p className="mt-2 text-2xl font-semibold tracking-tight">{fmtUsd(annualLossAvg)}</p>
-          <p className="mt-1 text-[11px]" style={{ color: "rgba(0,58,39,0.65)" }}>en capacidad stranded</p>
+          <p className="mt-1 text-[11px]" style={{ color: "rgba(0,58,39,0.65)" }}>in stranded capacity</p>
         </div>
       </div>
 
       {/* Range bar */}
       <Tile>
-        <Eyebrow>Rango de pérdida anual</Eyebrow>
+        <Eyebrow>Annual loss range</Eyebrow>
         <div className="relative mt-3 h-8">
           <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 rounded-full" style={{ background: TRACK }} />
           <div className="absolute top-1/2 h-2 -translate-y-1/2 rounded-full" style={{ left: "0%", right: "0%", background: GOLD }} />
@@ -692,12 +690,11 @@ function SectionFinancial({
         </div>
         <div className="mt-2 flex items-center justify-between text-[11px] text-white/50">
           <span>{fmtUsd(annualLossLow)}</span>
-          <span className="font-medium text-white">Prom. {fmtUsd(annualLossAvg)}</span>
+          <span className="font-medium text-white">Avg. {fmtUsd(annualLossAvg)}</span>
           <span>{fmtUsd(annualLossHigh)}</span>
         </div>
         <p className="mt-3 text-[11px] leading-relaxed text-white/40">
-          El precio de la electricidad varía según región y contrato: tomamos un rango de 60 a 110 USD/MWh, con 83
-          USD/MWh como valor promedio.
+          Electricity prices vary by region and contract: we use a range of 60 to 110 USD/MWh, with 83 USD/MWh as the average.
         </p>
       </Tile>
 
@@ -706,14 +703,14 @@ function SectionFinancial({
         <div className="mb-3 flex items-center gap-2">
           <Coins className="h-4 w-4 text-[#d4a94e]" aria-hidden="true" />
           <p className="text-sm font-medium text-white">
-            Ahorro proyectado — {currentLabel} → {compareLabel}
+            Projected savings — {currentLabel} → {compareLabel}
           </p>
         </div>
         <div className="grid grid-cols-3 gap-3">
           {[3, 5, 10].map((yrs) => (
             <div key={yrs} className="rounded-lg border border-white/10 bg-[#00281b] p-1 lg:p-3 text-center">
               <p className="text-lg font-semibold tabular-nums text-[#d4a94e]">{fmtUsd(positiveSavings * yrs)}</p>
-              <p className="mt-1 text-[11px] text-white/50">{yrs} años</p>
+              <p className="mt-1 text-[11px] text-white/50">{yrs} years</p>
             </div>
           ))}
         </div>
@@ -723,10 +720,10 @@ function SectionFinancial({
       <Tile className="mt-auto">
         <div className="mb-2 flex items-center gap-2">
           <Zap className="h-4 w-4 text-[#d4a94e]" aria-hidden="true" />
-          <p className="text-sm font-medium text-white">Por qué 83 USD/MWh</p>
+          <p className="text-sm font-medium text-white">Why 83 USD/MWh</p>
         </div>
         <p className="mb-3 text-[11px] leading-relaxed text-white/50">
-          Es el benchmark de SemiAnalysis para un gran consumidor de IA — no un promedio genérico de red.
+          This is SemiAnalysis' benchmark for a large AI consumer — not a generic grid average.
         </p>
         <table className="w-full border-collapse text-[11.5px]">
           <tbody className="text-white/80">
@@ -738,7 +735,7 @@ function SectionFinancial({
             ))}
           </tbody>
         </table>
-        <p className="mt-2 text-[11px] text-white/40">Fuentes: EIA, Eurostat, SemiAnalysis, mercado de PPA.</p>
+        <p className="mt-2 text-[11px] text-white/40">Sources: EIA, Eurostat, SemiAnalysis, PPA market.</p>
       </Tile>
     </Panel>
   )
@@ -781,22 +778,22 @@ function SectionRadar({
   const cmpDens = (cmpOpt.densityLow + cmpOpt.densityHigh) / 2
 
   const rows = [
-    { label: "Uso eficiente", cur: `${(100 - result.strandedPercent).toFixed(1)}%`, cmp: `${(100 - compareResult.strandedPercent).toFixed(1)}%` },
+    { label: "Efficient usage", cur: `${(100 - result.strandedPercent).toFixed(1)}%`, cmp: `${(100 - compareResult.strandedPercent).toFixed(1)}%` },
     { label: "PUE", cur: result.pue.toFixed(3), cmp: compareResult.pue.toFixed(3) },
-    { label: "Pérdida anual", cur: fmtUsd(result.annualLossAvg), cmp: fmtUsd(compareResult.annualLossAvg) },
-    { label: "Densidad (kW/rack)", cur: `${curDens.toFixed(0)}`, cmp: `${cmpDens.toFixed(0)}` },
+    { label: "Annual loss", cur: fmtUsd(result.annualLossAvg), cmp: fmtUsd(compareResult.annualLossAvg) },
+    { label: "Density (kW/rack)", cur: `${curDens.toFixed(0)}`, cmp: `${cmpDens.toFixed(0)}` },
   ]
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Selector de comparación */}
+      {/* Comparison selector */}
       <Panel contentClassName="flex-col gap-4 items-center sm:justify-between p-4 lg:p-6">
         <p className="text-md text-white">
-          Comparar mi escenario actual{" "}
+          Compare my current scenario{" "}
           <span className="font-semibold text-[#d4a94e]">
             ({COOLING_LABEL[coolingType]}, {fmtMW(facilitySize)}, {utilization}%)
           </span>{" "}
-          contra
+          against
         </p>
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-[#00281b] p-1">
           {alternatives.map((type) => {
@@ -819,12 +816,12 @@ function SectionRadar({
         </div>
       </Panel>
 
-      {/* Panel comparativo */}
+      {/* Comparison panel */}
       <Panel className="h-full" contentClassName="gap-5">
         <div className="flex items-center gap-2">
           <Layers className="h-4 w-4 text-[#d4a94e]" aria-hidden="true" />
           <h3 className="text-base font-semibold text-white">
-            Comparativa — {currentLabel} vs {compareLabel}
+            Comparison — {currentLabel} vs {compareLabel}
           </h3>
         </div>
 
@@ -845,19 +842,18 @@ function SectionRadar({
 
           <ul className="flex flex-col justify-center gap-2.5 text-[12px] leading-snug text-white/60 lg:col-span-3">
             <li>
-              <b className="font-medium text-white">Uso eficiente</b> — % de capacidad que sí entregás.
+              <b className="font-medium text-white">Efficient usage</b> — % of capacity you actually deliver.
             </li>
             <li>
-              <b className="font-medium text-white">PUE</b> — eficiencia del overhead de cooling (escala fija
-              1.0–2.0).
+              <b className="font-medium text-white">PUE</b> — cooling overhead efficiency (fixed scale 1.0–2.0).
             </li>
             <li>
-              <b className="font-medium text-white">Pérdida anual</b> — menor pérdida en USD (tope 20M).
+              <b className="font-medium text-white">Annual loss</b> — lower loss in USD (capped at 20M).
             </li>
             <li>
-              <b className="font-medium text-white">Densidad</b> — kW/rack soportados (tope 200).
+              <b className="font-medium text-white">Density</b> — supported kW/rack (capped at 200).
             </li>
-            <li className="pt-1 text-white">En los 4 ejes, más afuera = mejor.</li>
+            <li className="pt-1 text-white">On all 4 axes, further out = better.</li>
           </ul>
         </div>
 
@@ -867,7 +863,7 @@ function SectionRadar({
             <p className="mt-2 text-2xl font-semibold tabular-nums text-[#d4a94e]">{fmtMW(recoverableMw)}</p>
           </Tile>
           <Tile>
-            <p className="text-xs text-white/50">Ahorro relativo</p>
+            <p className="text-xs text-white/50">Relative savings</p>
             <p className="mt-2 text-2xl font-semibold tabular-nums text-[#d4a94e]">{relativeSavingsPct.toFixed(1)}%</p>
           </Tile>
         </div>
@@ -876,7 +872,7 @@ function SectionRadar({
           <table className="w-full border-collapse text-left text-[12px]">
             <thead>
               <tr className="bg-white/5 text-white/50">
-                <th className="p-2 font-medium">Métrica</th>
+                <th className="p-2 font-medium">Metric</th>
                 <th className="p-2 text-right font-medium">{currentLabel}</th>
                 <th className="p-2 text-right font-medium">{compareLabel}</th>
               </tr>
@@ -919,7 +915,7 @@ function RadarChart({
     series.map((s, i) => `${pointFor(s.value, angles[i]).x},${pointFor(s.value, angles[i]).y}`).join(" ")
 
   return (
-    <svg width="100%" viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Radar comparativo de 4 ejes">
+    <svg width="100%" viewBox={`0 0 ${size} ${size}`} role="img" aria-label="4-axis comparison radar chart">
       <defs>
         <radialGradient id="radarGlow" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor={GOLD} stopOpacity="0.08" />
@@ -1045,49 +1041,49 @@ function SectionRecommendations({
   // Column 1 — Cooling Overhead
   const col1 =
     facilityRatio >= 0.45
-      ? `El ${facilityPct}% de tu pérdida total está concentrada en la capa Facility, no en IT ni en Workload. Según el estudio de Vertiv+NVIDIA, migrar de Air a liquid cooling reduce el consumo de facility en 18.1% y el de los ventiladores en 80% — acá es donde una migración de tecnología rinde más.`
+      ? `${facilityPct}% of your total loss is concentrated in the Facility layer, not in IT or Workload. According to the Vertiv+NVIDIA study, migrating from Air to liquid cooling reduces facility consumption by 18.1% and fan power by 80% — this is where technology migration delivers the most value.`
       : facilityRatio >= 0.25
-        ? `Tu capa Facility explica una porción moderada de la pérdida (${facilityPct}%) — hay mejora disponible migrando de tecnología, pero no es tu mayor palanca.`
-        : `Tu capa Facility no es el problema principal (solo ${facilityPct}% de tu pérdida total) — el cooling ya funciona relativamente bien. Las columnas de Tecnología o Utilización probablemente pesen más en tu caso.`
+        ? `Your Facility layer accounts for a moderate portion of the loss (${facilityPct}%) — there's improvement available by migrating technology, but it's not your biggest lever.`
+        : `Your Facility layer is not the main problem (only ${facilityPct}% of your total loss) — cooling is already working relatively well. The Technology or Utilization columns likely carry more weight in your case.`
 
   // Column 2 — Technology / Density
   const positiveSavings = Math.max(0, annualSavings)
   const col2 =
     coolingType === "air" || coolingType === "hybrid"
-      ? `No llegás al umbral de 50 kW/rack donde ASHRAE recomienda evaluar liquid cooling, pero cambiar de tecnología igual te devuelve capacidad recuperable — no es urgencia técnica, es oportunidad de eficiencia. Contra ${compareLabel}: ${fmtMW(recoverableMw)} recuperables (~${fmtUsd(positiveSavings)}/año).`
+      ? `You're not reaching the 50 kW/rack threshold where ASHRAE recommends evaluating liquid cooling, but changing technology still recovers capacity — it's not a technical urgency, it's an efficiency opportunity. Against ${compareLabel}: ${fmtMW(recoverableMw)} recoverable (~${fmtUsd(positiveSavings)}/year).`
       : coolingType === "liquid"
-        ? `Ya estás en una tecnología de alta densidad. El margen que queda es más chico, pero migrar a Immersion todavía puede sumar: contra ${compareLabel}, ${fmtMW(recoverableMw)} recuperables (~${fmtUsd(positiveSavings)}/año).`
-        : `Estás en la tecnología más eficiente disponible. Acá el cooling ya no es tu palanca principal — mirá tu utilización.`
+        ? `You're already on high-density technology. The remaining margin is smaller, but migrating to Immersion can still add value: against ${compareLabel}, ${fmtMW(recoverableMw)} recoverable (~${fmtUsd(positiveSavings)}/year).`
+        : `You're on the most efficient technology available. Cooling is no longer your main lever — look at your utilization.`
 
   // Column 3 — Utilization
   const col3 =
     utilization < 50
-      ? `Tu utilización deja mucha capacidad ociosa sin necesidad de cambiar hardware — es la palanca más barata: mejorar el scheduling o consolidar cargas antes de invertir en nueva tecnología.`
+      ? `Your utilization leaves a lot of idle capacity without needing hardware changes — it's the cheapest lever: improve scheduling or consolidate workloads before investing in new technology.`
       : utilization <= 80
-        ? `Tu utilización (${utilization}%) está en un rango razonable, pero todavía hay margen operativo antes de necesitar cambios de infraestructura — mejorar el scheduling o consolidar cargas es la palanca más barata, antes de invertir en nueva tecnología de cooling.`
-        : `Tu utilización ya es alta — acá el problema no es operativo, es de infraestructura. El cooling es tu próxima palanca.`
+        ? `Your utilization (${utilization}%) is in a reasonable range, but there's still operational headroom before infrastructure changes are needed — improving scheduling or consolidating workloads is the cheapest lever, before investing in new cooling technology.`
+        : `Your utilization is already high — the problem here isn't operational, it's infrastructure. Cooling is your next lever.`
 
   return (
     <Panel contentClassName="gap-0">
-      <h3 className="mb-5 text-base font-semibold text-white">Recomendaciones</h3>
+      <h3 className="mb-5 text-base font-semibold text-white">Recommendations</h3>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <RecCard
           Icon={Wind}
           title="Cooling Overhead"
           body={col1}
-          detail={`Umbral usado: Facility ≥45% del total perdido = alto · 25–45% = moderado · menos de 25% = bajo. Respaldo adicional del mismo estudio: Infrastructure Power −18%, IT Power −7 a −10%.`}
+          detail={`Threshold used: Facility ≥45% of total lost = high · 25–45% = moderate · less than 25% = low. Additional support from the same study: Infrastructure Power −18%, IT Power −7 to −10%.`}
         />
         <RecCard
           Icon={Gauge}
-          title="Tecnología / Densidad"
+          title="Technology / Density"
           body={col2}
-          detail={`Umbral técnico: ASHRAE sugiere evaluar liquid cooling a partir de 50 kW/rack. La capacidad recuperable y el ahorro se calculan contra el escenario alternativo seleccionado arriba (${compareLabel}).`}
+          detail={`Technical threshold: ASHRAE suggests evaluating liquid cooling starting at 50 kW/rack. Recoverable capacity and savings are calculated against the alternative scenario selected above (${compareLabel}).`}
         />
         <RecCard
           Icon={Cpu}
-          title="Utilización"
+          title="Utilization"
           body={col3}
-          detail={`Umbrales: menos de 50% = mucha capacidad ociosa · 50–80% = margen operativo · más de 80% = límite de infraestructura. Tu input actual: ${utilization}%.`}
+          detail={`Thresholds: less than 50% = significant idle capacity · 50–80% = operational headroom · more than 80% = infrastructure limit. Your current input: ${utilization}%.`}
         />
       </div>
     </Panel>
@@ -1121,10 +1117,9 @@ function RecCard({
         aria-expanded={open}
       >
         <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden="true" />
-        Ver cómo se calculó
+        How it was calculated
       </button>
       {open && <p className="mt-2 text-[11px] leading-relaxed text-white/40">{detail}</p>}
     </div>
   )
 }
-
