@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhysaFlow — Stranded Capacity Calculator · Momento 3</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pf-forest:#1B4332; --pf-forest-light:#2D6A4F; --pf-forest-lighter:#40916C;
+    --pf-pale-green:#B8C9BC; --pf-gold:#C9A227; --pf-gold-mid:#B8963A; --pf-gold-dark:#8A6D1F;
+    --pf-gold-light:#E0C563; --pf-grey-track:#E5E1D6;
+    --bg:#F5F3EE; --surface:#FFFFFF; --text-primary:#1B2A22; --text-secondary:#5B6660;
+    --text-muted:#9B9C94; --border:#E2DFD5;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text-primary); font-family:'Inter',sans-serif; font-size:15px; line-height:1.5;}
+  .page{max-width:760px; margin:0 auto; padding:0 20px 80px;}
+  header.top{background:var(--pf-forest); color:white; padding:28px 20px 24px;}
+  header.top .inner{max-width:760px; margin:0 auto;}
+  .brand{font-family:'Fraunces',serif; font-size:22px; font-weight:600; color:var(--pf-gold-light); margin:0 0 2px;}
+  .brand-sub{font-size:13px; color:rgba(255,255,255,0.75); margin:0;}
+  .m3-tag{display:inline-block; margin-top:16px; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--pf-gold-light); border:1px solid rgba(224,197,99,0.4); border-radius:20px; padding:5px 14px;}
+  .m3-title{font-family:'Fraunces',serif; font-size:26px; font-weight:500; margin:10px 0 0;}
+
+  .section-num{font-size:11px; font-weight:700; color:var(--pf-gold-dark); text-transform:uppercase; letter-spacing:.08em; margin:56px 0 6px;}
+  .section-title{font-family:'Fraunces',serif; font-size:21px; font-weight:500; color:var(--text-primary); margin:0 0 18px;}
+  section:first-of-type .section-num{margin-top:40px;}
+
+  .card{background:var(--surface); border-radius:14px; padding:20px 22px; border:1px solid var(--border);}
+  .card + .card{margin-top:14px;}
+  .wrap2{display:grid; grid-template-columns:1.1fr 1fr; gap:24px; align-items:start;}
+  @media (max-width:640px){.wrap2{grid-template-columns:1fr;} .page{padding:0 16px 60px;}}
+
+  .label{font-size:12px; color:var(--text-secondary); margin:0 0 8px; text-transform:uppercase; letter-spacing:.04em; font-weight:600;}
+  .tone{font-size:16px; color:var(--text-primary); margin:0 0 8px; line-height:1.5; font-weight:600;}
+  .tone-sub{font-size:14px; color:var(--text-secondary); margin:0 0 16px; line-height:1.6;}
+  .context{font-size:13.5px; color:var(--text-secondary); margin:0; line-height:1.6; padding-top:14px; border-top:1px solid var(--border);}
+  .context + .context{border-top:none; padding-top:10px;}
+  .context b{color:var(--text-primary); font-weight:600;}
+
+  .flow-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;}
+  .flow-title{font-size:14px; font-weight:600; color:var(--text-primary); margin:0;}
+  .legend{display:flex; gap:16px; font-size:12px; color:var(--text-secondary);}
+  .swatch{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:1px;}
+  .layer-row{display:flex; align-items:center; gap:14px;}
+  .layer-icon{width:40px; height:40px; border-radius:10px; background:var(--pf-grey-track); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .layer-icon i{font-size:19px; color:var(--pf-forest);}
+  .layer-name{font-size:14.5px; font-weight:700; color:var(--text-primary); margin:0;}
+  .layer-sub{font-size:12px; color:var(--text-secondary); margin:0;}
+  .layer-val{font-size:17px; font-weight:700; color:var(--text-primary); margin-left:auto;}
+  .bar-track{height:10px; border-radius:5px; background:var(--pf-grey-track); overflow:hidden; display:flex; margin-top:10px;}
+  .connector{display:flex; align-items:center; gap:8px; padding:12px 4px; font-size:12px; color:var(--text-secondary); flex-wrap:wrap;}
+  .connector-arrow{width:22px; height:22px; border-radius:50%; background:var(--pf-grey-track); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .connector-arrow i{font-size:12px; color:var(--text-secondary);}
+  .sep{color:var(--border);}
+  .loss-tag{color:var(--pf-gold-dark); font-weight:700;}
+  .local-tag{color:var(--pf-forest-light); font-weight:700;}
+
+  .context-tag{font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin:0 0 8px; font-weight:600;}
+  .explain{font-size:14px; color:var(--text-primary); line-height:1.6; margin:0 0 16px;}
+
+  table.mini{width:100%; border-collapse:collapse; font-size:12.5px;}
+  table.mini th{text-align:left; font-weight:600; color:var(--text-secondary); padding:8px; border-bottom:1px solid var(--border);}
+  table.mini td{padding:8px; border-bottom:1px solid var(--border); color:var(--text-primary);}
+  table.mini tr:last-child td{border-bottom:none;}
+  table.mini td:not(:first-child), table.mini th:not(:first-child){text-align:right;}
+  .subrow{padding-left:20px !important; color:var(--text-secondary) !important; font-size:12px;}
+  .note{font-size:12.5px; color:var(--text-secondary); line-height:1.6; margin-top:12px;}
+  .big{font-size:24px; font-weight:700; color:var(--pf-forest); margin:0; font-family:'Fraunces',serif;}
+
+  select, .m3-select{appearance:none; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 30px 8px 12px; font-size:13.5px; font-family:'Inter',sans-serif; color:var(--text-primary); cursor:pointer;}
+
+  .rec{background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--pf-gold); border-radius:0 14px 14px 0; padding:18px 20px; margin-bottom:14px;}
+  .rec-head{display:flex; gap:14px; align-items:flex-start;}
+  .rec-icon{width:38px; height:38px; border-radius:50%; background:var(--pf-forest); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .rec-icon i{color:var(--pf-gold-light); font-size:18px;}
+  .rec-title{font-size:15px; font-weight:700; margin:0 0 4px; color:var(--text-primary);}
+  .rec-body{font-size:13.5px; color:var(--text-secondary); margin:0; line-height:1.6;}
+  .rec-stats{display:flex; gap:18px; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); flex-wrap:wrap;}
+  .rec-stat{font-size:12px; color:var(--text-secondary);}
+  .rec-stat b{display:block; font-size:15px; color:var(--pf-forest-light); font-weight:700;}
+  .rec-detail{font-size:12.5px; color:var(--text-secondary); margin:10px 0 0; line-height:1.6; padding-top:10px; border-top:1px solid var(--border); display:none;}
+  .rec-toggle{font-size:12px; color:var(--pf-forest-light); font-weight:600; background:none; border:none; padding:8px 0 0; cursor:pointer; font-family:'Inter',sans-serif;}
+
+  footer.pf-footer{margin-top:60px; padding-top:20px; border-top:1px solid var(--border); font-size:12px; color:var(--text-muted); text-align:center;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="inner">
+    <p class="brand">PhysaFlow</p>
+    <p class="brand-sub">Stranded Capacity Calculator</p>
+    <span class="m3-tag">Ejemplo de trabajo — equipo No Country</span>
+    <p class="m3-title">Momento 3 — Comparación de escenarios</p>
+  </div>
+</header>
+
+<div class="page">
+
+<section>
+<p class="section-num">Apartado 1</p>
+<p class="section-title">Resultado básico</p>
+<div class="wrap2">
+  <div>
+    <p class="label">Tu resultado</p>
+    <p class="tone">Estás perdiendo más de la mitad de tu capacidad instalada.</p>
+    <p class="tone-sub">Con un facility de <b>5 MW</b> operando al <b>60%</b> de utilización sobre <b>Air Cooling</b>, hay <b>3.41 MW</b> que pagás en energía y refrigeración pero que hoy no están produciendo ningún cómputo, eso se traduce en pérdida real todos los meses, no solo en un número de eficiencia.</p>
+    <p class="context"><b>PUE de referencia:</b> el rango mostrado sale de benchmarks publicados por ASHRAE y Vertiv para tu tipo de cooling — no es una medición de tu facility.</p>
+    <p class="context"><b>Sobre tu tecnología:</b> las cargas tradicionales rondan 5–15 kW por rack. Si tu carga es de inteligencia artificial, es esperable que estés operando muy por encima de ese rango — las cargas de IA suelen ir de 50 a 120+ kW por rack.</p>
+  </div>
+  <div>
+    <div class="card">
+      <svg viewBox="0 0 320 260" width="100%">
+        <path d="M 40 150 A 120 120 0 0 1 280 150" fill="none" stroke="var(--border)" stroke-width="22" stroke-linecap="round"/>
+        <path d="M 40 150 A 120 120 0 0 1 244 62" fill="none" stroke="var(--pf-gold)" stroke-width="22" stroke-linecap="round"/>
+        <text x="160" y="120" text-anchor="middle" font-size="46" font-weight="700" fill="var(--pf-forest)" font-family="Fraunces,serif">68%</text>
+        <text x="160" y="145" text-anchor="middle" font-size="12.5" fill="var(--text-secondary)">stranded capacity</text>
+        <rect x="30" y="185" width="76" height="26" rx="6" fill="var(--pf-forest-lighter)"/>
+        <rect x="106" y="185" width="184" height="26" fill="var(--pf-gold)"/>
+        <rect x="270" y="185" width="20" height="26" rx="6" fill="var(--pf-gold)"/>
+        <text x="68" y="230" text-anchor="middle" font-size="12" fill="var(--pf-forest-lighter)" font-weight="700">1.59 MW usado</text>
+        <text x="230" y="230" text-anchor="middle" font-size="12" fill="var(--pf-gold-dark)" font-weight="700">3.41 MW stranded</text>
+        <text x="290" y="180" text-anchor="end" font-size="10.5" fill="var(--text-secondary)">Facility: 5 MW</text>
+      </svg>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <p class="label" style="margin-bottom:4px;">PUE de referencia — Air Cooling</p>
+      <svg viewBox="0 0 320 90" width="100%">
+        <line x1="20" y1="55" x2="300" y2="55" stroke="var(--border)" stroke-width="2"/>
+        <rect x="150" y="40" width="70" height="30" rx="6" fill="var(--pf-forest)"/>
+        <text x="140" y="35" text-anchor="middle" font-size="11" fill="var(--text-secondary)">1.40</text>
+        <text x="225" y="35" text-anchor="middle" font-size="11" fill="var(--text-secondary)">1.60</text>
+        <text x="185" y="60" text-anchor="middle" font-size="12.5" fill="white" font-weight="700">PUE</text>
+      </svg>
+    </div>
+  </div>
+</div>
+</section>
+
+<section>
+<p class="section-num">Apartado 2</p>
+<p class="section-title">Breakdown por capa</p>
+<div class="card">
+  <div class="flow-head">
+    <p class="flow-title">Capacity Flow — dónde se pierde tu capacidad</p>
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--pf-forest-lighter)"></span>Entregado</span>
+      <span><span class="swatch" style="background:var(--pf-gold)"></span>Perdido acá</span>
+      <span><span class="swatch" style="background:var(--pf-grey-track)"></span>Perdido antes</span>
+    </div>
+  </div>
+
+  <div class="layer-row">
+    <div class="layer-icon"><i class="ti ti-building"></i></div>
+    <div><p class="layer-name">Facility</p><p class="layer-sub">Nameplate Power</p></div>
+    <div class="layer-val">5.0 MW</div>
+  </div>
+  <div class="bar-track"><div style="width:62.5%; background:var(--pf-forest-lighter);"></div><div style="width:37.5%; background:var(--pf-gold);"></div></div>
+  <div class="connector">
+    <div class="connector-arrow"><i class="ti ti-arrow-down"></i></div>
+    <span class="loss-tag">−1.88 MW (37.5% del total)</span><span class="sep">·</span>
+    <span>100% → 62.5% del nameplate</span><span class="sep">·</span>
+    <span>Esta capa: 100% → <span class="local-tag">62.5%</span></span>
+  </div>
+
+  <div class="layer-row">
+    <div class="layer-icon"><i class="ti ti-server-2"></i></div>
+    <div><p class="layer-name">IT</p><p class="layer-sub">Effective IT Capacity</p></div>
+    <div class="layer-val">3.13 MW</div>
+  </div>
+  <div class="bar-track"><div style="width:53.1%; background:var(--pf-forest-lighter);"></div><div style="width:9.4%; background:var(--pf-gold);"></div><div style="width:37.5%; background:var(--pf-grey-track);"></div></div>
+  <div class="connector">
+    <div class="connector-arrow"><i class="ti ti-arrow-down"></i></div>
+    <span class="loss-tag">−0.47 MW (9.4% del total)</span><span class="sep">·</span>
+    <span>62.5% → 53.1% del nameplate</span><span class="sep">·</span>
+    <span>Esta capa: 100% → <span class="local-tag">85.0%</span></span>
+  </div>
+
+  <div class="layer-row">
+    <div class="layer-icon" style="background:var(--pf-forest);"><i class="ti ti-cpu" style="color:white;"></i></div>
+    <div><p class="layer-name">Workload</p><p class="layer-sub">IT Work Capacity (ITWC)</p></div>
+    <div class="layer-val">1.59 MW</div>
+  </div>
+  <div class="bar-track"><div style="width:31.9%; background:var(--pf-forest-lighter);"></div><div style="width:21.25%; background:var(--pf-gold);"></div><div style="width:46.85%; background:var(--pf-grey-track);"></div></div>
+  <div class="connector" style="justify-content:center; text-align:center;">
+    <span class="loss-tag">−1.06 MW (21.3% del total)</span><span class="sep">·</span>
+    <span>53.1% → 31.9% entregado</span><span class="sep">·</span>
+    <span>Esta capa: 100% → <span class="local-tag">60.0%</span></span>
+  </div>
+</div>
+
+<div class="card">
+  <p class="context-tag">Cómo se calcula "Esta capa: 100% → X%"</p>
+  <table class="mini">
+    <tr><th>Capa</th><th>Parámetro del modelo</th><th>En tu caso</th></tr>
+    <tr><td>Facility</td><td>1 / PUE</td><td>PUE 1.60 → 62.5%</td></tr>
+    <tr><td>IT</td><td>1 − margen de redundancia</td><td>Margen 15% → 85%</td></tr>
+    <tr><td>Workload</td><td>Utilización ingresada</td><td>Tu input: 60%</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <p class="context-tag">Contexto de industria — dato de referencia</p>
+  <p class="explain">Esta gráfica muestra cómo en un data center tradicional, el equipo de IT concentra la mayor parte del consumo. Mientras que en uno de IA, la infraestructura crece tanto que casi empata con el IT.</p>
+  <div style="display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;">
+    <svg viewBox="0 0 200 200" width="150" height="150" style="flex-shrink:0;">
+      <circle cx="100" cy="100" r="45" fill="none" stroke="var(--pf-forest)" stroke-width="20" stroke-dasharray="197.9 84.8" transform="rotate(-90 100 100)"/>
+      <circle cx="100" cy="100" r="45" fill="none" stroke="var(--pf-forest-light)" stroke-width="20" stroke-dasharray="56.5 226.2" stroke-dashoffset="-197.9" transform="rotate(-90 100 100)"/>
+      <circle cx="100" cy="100" r="45" fill="none" stroke="var(--pf-forest-lighter)" stroke-width="20" stroke-dasharray="19.8 262.9" stroke-dashoffset="-254.5" transform="rotate(-90 100 100)"/>
+      <circle cx="100" cy="100" r="45" fill="none" stroke="var(--pf-pale-green)" stroke-width="20" stroke-dasharray="8.5 274.2" stroke-dashoffset="-274.3" transform="rotate(-90 100 100)"/>
+      <circle cx="100" cy="100" r="70" fill="none" stroke="var(--pf-gold-light)" stroke-width="20" stroke-dasharray="197.9 241.9" transform="rotate(-90 100 100)"/>
+      <circle cx="100" cy="100" r="70" fill="none" stroke="var(--pf-gold)" stroke-width="20" stroke-dasharray="241.9 197.9" stroke-dashoffset="-197.9" transform="rotate(-90 100 100)"/>
+    </svg>
+    <table class="mini" style="flex:1; min-width:280px;">
+      <tr><th>Data center de IA</th><th>%</th><th style="border-left:1px solid var(--border); padding-left:12px;">Tradicional</th><th>%</th></tr>
+      <tr><td><span class="swatch" style="background:var(--pf-gold-light)"></span>IT Equipment</td><td>45%</td><td style="border-left:1px solid var(--border); padding-left:12px;"><span class="swatch" style="background:var(--pf-forest)"></span>IT Equipment</td><td>70%</td></tr>
+      <tr><td class="subrow">Cooling</td><td>—</td><td class="subrow" style="border-left:1px solid var(--border); padding-left:12px;"><span class="swatch" style="background:var(--pf-forest-light)"></span>Cooling</td><td>20%</td></tr>
+      <tr><td class="subrow">Electrical</td><td>—</td><td class="subrow" style="border-left:1px solid var(--border); padding-left:12px;"><span class="swatch" style="background:var(--pf-forest-lighter)"></span>Electrical/UPS</td><td>7%</td></tr>
+      <tr><td class="subrow">MEP</td><td>—</td><td class="subrow" style="border-left:1px solid var(--border); padding-left:12px;"><span class="swatch" style="background:var(--pf-pale-green)"></span>Misc+Lighting</td><td>3%</td></tr>
+      <tr><td><span class="swatch" style="background:var(--pf-gold)"></span><b>Infraestructura</b></td><td><b>55%</b></td><td style="border-left:1px solid var(--border); padding-left:12px;"><b>Infraestructura</b></td><td><b>30%</b></td></tr>
+    </table>
+  </div>
+  <p class="note">Fuentes: Uptime Institute · Schneider Electric White Paper 110. La capa Workload se mide con <b>ITWC</b>, una métrica real de The Green Grid — no es un supuesto propio de este modelo.</p>
+</div>
+</section>
+
+<section>
+<p class="section-num">Apartado 3</p>
+<p class="section-title">Impacto financiero</p>
+<div class="card">
+  <p class="label">Pérdida financiera anual estimada</p>
+  <svg viewBox="0 0 400 90" width="100%">
+    <rect x="20" y="35" width="360" height="20" rx="8" fill="var(--pf-gold-light)"/>
+    <line x1="200" y1="20" x2="200" y2="70" stroke="var(--pf-forest)" stroke-width="3"/>
+    <text x="200" y="15" text-anchor="middle" font-size="13" font-weight="700" fill="var(--pf-forest)">$2,476,584 / año</text>
+    <text x="20" y="82" font-size="11" fill="var(--text-secondary)">$1,790,300</text>
+    <text x="380" y="82" text-anchor="end" font-size="11" fill="var(--text-secondary)">$3,282,213</text>
+  </svg>
+  <div style="display:flex; gap:32px; margin-top:16px; flex-wrap:wrap;">
+    <div><p class="note" style="margin:0 0 2px;">Costo total del facility</p><p class="big">$3,635,400</p></div>
+    <div><p class="note" style="margin:0 0 2px;">De eso, se pierde</p><p class="big" style="color:var(--pf-gold-dark);">$2,476,584</p></div>
+  </div>
+</div>
+<div class="card">
+  <p class="label">Ahorro proyectado — Direct Liquid Cooling</p>
+  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px;">
+    <div><p class="note" style="margin:0;">3 años</p><p class="big" style="font-size:19px;">$1,582,581</p></div>
+    <div><p class="note" style="margin:0;">5 años</p><p class="big" style="font-size:19px;">$2,637,635</p></div>
+    <div><p class="note" style="margin:0;">10 años</p><p class="big" style="font-size:19px;">$5,275,270</p></div>
+  </div>
+  <p class="note">Basado en recuperar 0.72 MW (la diferencia de Stranded Capacity entre tu escenario actual y Direct Liquid Cooling), al mismo precio de referencia.</p>
+</div>
+<div class="card">
+  <p class="context-tag">Precio de electricidad de referencia — 83 USD/MWh</p>
+  <table class="mini">
+    <tr><th>Región</th><th>Precio aprox.</th></tr>
+    <tr><td>Texas</td><td>~$80/MWh</td></tr>
+    <tr><td>Virginia</td><td>~$90/MWh</td></tr>
+    <tr><td>Promedio EE.UU.</td><td>~$100/MWh</td></tr>
+    <tr><td>Promedio Unión Europea</td><td>~$199/MWh</td></tr>
+    <tr><td>Alemania</td><td>~$244/MWh</td></tr>
+    <tr><td>Irlanda</td><td>~$275/MWh</td></tr>
+  </table>
+  <p class="note">Fuentes: EIA (Estados Unidos), Eurostat (Unión Europea), SemiAnalysis (benchmark de gran consumidor).</p>
+</div>
+</section>
+
+<section>
+<p class="section-num">Apartado 4</p>
+<p class="section-title">Comparación de escenarios</p>
+<div style="display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+  <label class="note" style="margin:0;" for="alt-select">Comparar mi escenario actual (Air) contra</label>
+  <select id="alt-select">
+    <option value="0">Hybrid Cooling</option>
+    <option value="1" selected>Direct Liquid Cooling</option>
+    <option value="2">Immersion Cooling</option>
+  </select>
+</div>
+<div class="card">
+  <div style="position:relative; height:280px;">
+    <canvas id="radarChart"></canvas>
+  </div>
+  <div id="radarLegend" style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin-top:10px; font-size:12.5px; color:var(--text-secondary);"></div>
+</div>
+<div class="card">
+  <table class="mini" id="compareTable"></table>
+</div>
+<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-top:14px;">
+  <div class="card"><p class="note" style="margin:0;">Recoverable capacity</p><p class="big" id="recovVal">0.73 MW</p></div>
+  <div class="card"><p class="note" style="margin:0;">Ahorro anual estimado</p><p class="big" id="savingsVal">$527,527</p></div>
+</div>
+</section>
+
+<section>
+<p class="section-num">Apartado 5</p>
+<p class="section-title">Recomendaciones</p>
+
+<div class="rec">
+  <div class="rec-head">
+    <div class="rec-icon"><i class="ti ti-droplet"></i></div>
+    <div style="flex:1;">
+      <p class="rec-title">High cooling overhead detectado</p>
+      <p class="rec-body">El 55% de tu capacidad perdida está en la capa Facility — tu sistema de cooling actual absorbe más energía de la que debería para este tamaño de facility.</p>
+      <div class="rec-detail" id="detail1">Esto se calcula comparando tu PUE efectivo contra el rango de referencia de Air Cooling (1.40–1.60). Cuanto más cerca del techo del rango, mayor es el margen de mejora disponible sin cambiar de tecnología.</div>
+      <button class="rec-toggle" onclick="var d=document.getElementById('detail1'); d.style.display = d.style.display==='block' ? 'none':'block';">Ver cómo se calculó</button>
+    </div>
+  </div>
+</div>
+
+<div class="rec">
+  <div class="rec-head">
+    <div class="rec-icon"><i class="ti ti-arrows-exchange"></i></div>
+    <div style="flex:1;">
+      <p class="rec-title">Cooling optimization opportunity</p>
+      <p class="rec-body">Cambiar a Direct Liquid Cooling recuperaría 0.72 MW sin tocar el hardware existente — eso equivale a $527,527 USD por año.</p>
+      <div class="rec-stats">
+        <div class="rec-stat"><b>−18.1%</b>Facility Power</div>
+        <div class="rec-stat"><b>−10.2%</b>Total DC Power</div>
+        <div class="rec-stat"><b>−8.5%</b>IT Power Reduction</div>
+        <div class="rec-stat"><b>−18%</b>Infrastructure Power</div>
+        <div class="rec-stat"><b>−80%</b>Fan Power</div>
+      </div>
+      <div class="rec-detail" id="detail2">Recoverable Capacity = Stranded MW actual − Stranded MW del escenario alternativo. El ahorro anual usa el mismo precio de electricidad de referencia (83 USD/MWh) para ambos escenarios. Las cinco métricas de arriba salen del estudio conjunto de Vertiv y NVIDIA sobre migración de Air a Direct Liquid Cooling.</div>
+      <button class="rec-toggle" onclick="var d=document.getElementById('detail2'); d.style.display = d.style.display==='block' ? 'none':'block';">Ver cómo se calculó</button>
+    </div>
+  </div>
+</div>
+
+<div class="rec">
+  <div class="rec-head">
+    <div class="rec-icon"><i class="ti ti-server-2"></i></div>
+    <div style="flex:1;">
+      <p class="rec-title">Densidad por debajo del umbral</p>
+      <p class="rec-body">Tu densidad actual no llega a los 50 kW/rack donde ASHRAE recomienda migrar a liquid cooling — la oportunidad hoy es de eficiencia, no de urgencia técnica.</p>
+      <div class="rec-detail" id="detail3">Umbral de referencia: ASHRAE recomienda evaluar liquid cooling a partir de 50 kW/rack. Por debajo de ese punto, la migración sigue siendo válida por eficiencia y costo, pero no es una necesidad técnica inmediata.</div>
+      <button class="rec-toggle" onclick="var d=document.getElementById('detail3'); d.style.display = d.style.display==='block' ? 'none':'block';">Ver cómo se calculó</button>
+    </div>
+  </div>
+</div>
+</section>
+
+<footer class="pf-footer">
+  Documento de trabajo — equipo No Country, desafío PhysaFlow / Stranded Capacity Calculator. Ejemplo con datos de referencia (5 MW, 60% utilización, Air Cooling).
+</footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+(function(){
+  var COVE = ['#2a78d6','#eb6834','#1baf7a','#eda100'];
+  var AXES = ['Uso eficiente','PUE','Ahorro relativo'];
+  var NAMES = ['Air (actual)','Hybrid','Liquid','Immersion'];
+  var SCORES = [[32,50,0],[39,70,27],[46,88,60],[50,94,83]];
+  var RAW = [
+    ['Stranded %','68.1%','60.8%','53.6%','50.5%'],
+    ['Stranded MW','3.41 MW','3.04 MW','2.68 MW','2.52 MW'],
+    ['PUE (referencia)','1.40–1.60','1.20–1.40','1.05–1.20','1.02–1.10'],
+    ['Densidad (kW/rack)','10–20','20–40','40–80','100–200']
+  ];
+  var STRANDED_MW=[3.41,3.04,2.68,2.52];
+  var LOSS_ANNUAL=[2476584,2208446,1946207,1832235];
+
+  var ctx=document.getElementById('radarChart');
+  var chart=new Chart(ctx,{type:'radar',data:{labels:AXES,datasets:[]},options:{
+    responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{r:{min:0,max:100,ticks:{display:false},grid:{color:'rgba(0,0,0,0.08)'},angleLines:{color:'rgba(0,0,0,0.08)'},pointLabels:{font:{size:11,family:'Inter'}}}}
+  }});
+
+  function render(altIdx){
+    var i=altIdx+1;
+    chart.data.datasets=[0,i].map(function(k){
+      return {label:NAMES[k],data:SCORES[k],borderColor:COVE[k],backgroundColor:COVE[k]+'22',borderWidth:2,pointRadius:3,pointBackgroundColor:COVE[k]};
+    });
+    chart.update();
+    document.getElementById('radarLegend').innerHTML=[0,i].map(function(k){
+      return '<span><span class="swatch" style="background:'+COVE[k]+'"></span>'+NAMES[k]+'</span>';
+    }).join('');
+    var thead='<tr><th>Métrica</th><th>Actual</th><th>'+NAMES[i]+'</th></tr>';
+    var rows=RAW.map(function(r){return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[i+1]+'</td></tr>';}).join('');
+    document.getElementById('compareTable').innerHTML=thead+rows;
+    var recMW=(STRANDED_MW[0]-STRANDED_MW[i]).toFixed(2);
+    var recUSD=Math.round(LOSS_ANNUAL[0]-LOSS_ANNUAL[i]);
+    document.getElementById('recovVal').textContent=recMW+' MW';
+    document.getElementById('savingsVal').textContent='$'+recUSD.toLocaleString('en-US');
+  }
+  document.getElementById('alt-select').addEventListener('change',function(e){render(parseInt(e.target.value,10));});
+  render(1);
+})();
+</script>
+</body>
+</html>
